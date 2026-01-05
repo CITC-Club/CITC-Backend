@@ -52,3 +52,56 @@ export const rsvpEvent = async (req: Request, res: Response) => {
         res.status(500).json({ message: (error as Error).message });
     }
 };
+
+// @desc    Update event
+// @route   PUT /api/events/:id
+// @access  Private/Admin
+export const updateEvent = async (req: Request, res: Response) => {
+    try {
+        const event = await Event.findById(req.params.id);
+
+        if (!event) {
+            return res.status(404).json({ message: 'Event not found' });
+        }
+
+        const { title, slug, description, type, startAt, endAt, location, capacity, image, tags, organizer, attachments } = req.body;
+
+        // Update fields
+        if (title !== undefined) event.title = title;
+        if (slug !== undefined) event.slug = slug;
+        if (description !== undefined) event.description = description;
+        if (type !== undefined) event.type = type;
+        if (startAt !== undefined) event.startAt = startAt;
+        if (endAt !== undefined) event.endAt = endAt;
+        if (location !== undefined) event.location = location;
+        if (capacity !== undefined) event.capacity = capacity;
+        if (image !== undefined) event.image = image;
+        if (tags !== undefined) event.tags = tags;
+        if (organizer !== undefined) event.organizer = organizer;
+        if (attachments !== undefined) event.attachments = attachments;
+
+        const updatedEvent = await event.save();
+        res.json(updatedEvent);
+    } catch (error) {
+        res.status(500).json({ message: (error as Error).message });
+    }
+};
+
+// @desc    Delete event
+// @route   DELETE /api/events/:id
+// @access  Private/Admin
+export const deleteEvent = async (req: Request, res: Response) => {
+    try {
+        const event = await Event.findById(req.params.id);
+
+        if (!event) {
+            return res.status(404).json({ message: 'Event not found' });
+        }
+
+        await event.deleteOne();
+        res.json({ message: 'Event removed' });
+    } catch (error) {
+        res.status(500).json({ message: (error as Error).message });
+    }
+};
+
