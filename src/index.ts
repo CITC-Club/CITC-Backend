@@ -1,5 +1,5 @@
 import express from 'express';
-import mongoose from 'mongoose';
+
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -9,7 +9,7 @@ import authRoutes from './routes/authRoutes';
 import eventRoutes from './routes/eventRoutes';
 import projectRoutes from './routes/projectRoutes';
 import teamRoutes from './routes/teamRoutes';
-import { seedData } from './seed';
+
 dotenv.config();
 
 const app = express();
@@ -22,15 +22,13 @@ app.use(morgan('dev'));
 app.use(express.json());
 
 // Database Connection
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/citc_db';
-
-mongoose.connect(MONGO_URI)
-    .then(() => console.log('MongoDB Connected'))
-    .catch(err => console.error('MongoDB Connection Error:', err));
+// Database Connection removed (migrating to LowDB)
+// import { initDB } from './db/db'; // Will be added later
 
 
-    
-seedData();
+
+
+// seedData(); // Removed for migration
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/events', eventRoutes);

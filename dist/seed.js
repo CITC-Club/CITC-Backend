@@ -1,31 +1,40 @@
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-import bcrypt from 'bcryptjs';
-import User from './models/User';
-import Event from './models/Event';
-import Project from './models/Project';
-import TeamMember from './models/TeamMember';
-
-dotenv.config();
-
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.seedData = void 0;
+const mongoose_1 = __importDefault(require("mongoose"));
+const dotenv_1 = __importDefault(require("dotenv"));
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const User_1 = __importDefault(require("./models/User"));
+const Event_1 = __importDefault(require("./models/Event"));
+const Project_1 = __importDefault(require("./models/Project"));
+const TeamMember_1 = __importDefault(require("./models/TeamMember"));
+dotenv_1.default.config();
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/citc_db';
-
-export const seedData = async () => {
+const seedData = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        await mongoose.connect(MONGO_URI);
+        yield mongoose_1.default.connect(MONGO_URI);
         console.log('MongoDB Connected for Seeding');
-
         // Clear existing data
-        await User.deleteMany({});
-        await Event.deleteMany({});
-        await Project.deleteMany({});
-        await TeamMember.deleteMany({});
-
+        yield User_1.default.deleteMany({});
+        yield Event_1.default.deleteMany({});
+        yield Project_1.default.deleteMany({});
+        yield TeamMember_1.default.deleteMany({});
         console.log('Cleared existing data');
-
         // Create Admin User
-        const adminPassword = await bcrypt.hash('admin123', 10);
-        const admin = await User.create({
+        const adminPassword = yield bcryptjs_1.default.hash('admin123', 10);
+        const admin = yield User_1.default.create({
             name: 'CITC Admin',
             email: 'admin@citc.ncit.edu.np',
             passwordHash: adminPassword,
@@ -33,36 +42,33 @@ export const seedData = async () => {
             isVerified: true,
         });
         console.log('Admin user created');
-
         // Create Patron/Mentor
-        const patronPassword = await bcrypt.hash('password123', 10);
-        const patron = await User.create({
+        const patronPassword = yield bcryptjs_1.default.hash('password123', 10);
+        const patron = yield User_1.default.create({
             name: 'Er. Amit Shrivatava',
             email: 'patron@citc.com',
             passwordHash: patronPassword,
             role: 'admin',
             isVerified: true,
         });
-
         // Create Mentors
-        const mentorPassword = await bcrypt.hash('password123', 10);
-        const mentor1 = await User.create({
+        const mentorPassword = yield bcryptjs_1.default.hash('password123', 10);
+        const mentor1 = yield User_1.default.create({
             name: 'Mentor One',
             email: 'mentor1@citc.com',
             passwordHash: mentorPassword,
             role: 'mentor',
             isVerified: true,
         });
-        const mentor2 = await User.create({
+        const mentor2 = yield User_1.default.create({
             name: 'Mentor Two',
             email: 'mentor2@citc.com',
             passwordHash: mentorPassword,
             role: 'mentor',
             isVerified: true,
         });
-
         // Create Members
-        const memberPassword = await bcrypt.hash('password123', 10);
+        const memberPassword = yield bcryptjs_1.default.hash('password123', 10);
         const members = [];
         for (let i = 1; i <= 10; i++) {
             members.push({
@@ -75,8 +81,7 @@ export const seedData = async () => {
                 isVerified: true,
             });
         }
-        const createdMembers = await User.insertMany(members);
-
+        const createdMembers = yield User_1.default.insertMany(members);
         // Seed Team Members
         const teamMembersData = [
             // Mentors
@@ -195,10 +200,8 @@ export const seedData = async () => {
                 createdBy: admin._id
             }
         ];
-
-        await TeamMember.insertMany(teamMembersData);
+        yield TeamMember_1.default.insertMany(teamMembersData);
         console.log('Team members seeded');
-
         // Create Events with new fields
         const eventsData = [
             {
@@ -272,12 +275,10 @@ export const seedData = async () => {
                 createdBy: admin._id
             }
         ];
-
-        await Event.insertMany(eventsData);
+        yield Event_1.default.insertMany(eventsData);
         console.log('Events seeded');
-
         // Create Projects
-        await Project.create({
+        yield Project_1.default.create({
             title: 'Smart Campus',
             shortDesc: 'IoT based campus management.',
             longDesc: 'Full featured IoT solution for smart lights and attendance.',
@@ -285,8 +286,7 @@ export const seedData = async () => {
             repoUrl: 'https://github.com/citc/smart-campus',
             tags: ['IoT', 'Arduino', 'React'],
         });
-
-        await Project.create({
+        yield Project_1.default.create({
             title: 'CITC Website',
             shortDesc: 'Official club website.',
             longDesc: 'MERN stack application for club management.',
@@ -294,17 +294,16 @@ export const seedData = async () => {
             repoUrl: 'https://github.com/citc/website',
             tags: ['MERN', 'TypeScript', 'Docker'],
         });
-
         console.log('Seeding Completed Successfully');
         console.log('\n=== Admin Credentials ===');
         console.log('Email: admin@citc.ncit.edu.np');
         console.log('Password: admin123');
         console.log('========================\n');
         process.exit(0);
-    } catch (error) {
+    }
+    catch (error) {
         console.error('Seeding Error:', error);
         process.exit(1);
     }
-};
-
-
+});
+exports.seedData = seedData;
