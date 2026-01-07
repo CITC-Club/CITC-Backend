@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { getTeamsDB } from '../db/db';
-import { ITeamMember } from '../db/schema';
+import { IMember, ITeam } from '../db/schema'; // ITeamMember might be gone, need to check if I left it
 import crypto from 'crypto';
 
 interface AuthRequest extends Request {
@@ -18,20 +18,11 @@ const generateId = () => crypto.randomUUID();
 export const getAllTeamMembers = async (req: Request, res: Response) => {
     try {
         const db = await getTeamsDB();
-        const teamMembers = db.data.teams.filter(t => t.isActive).sort((a, b) => {
-            if (a.category === b.category) {
-                return a.order - b.order;
-            }
-            return a.category.localeCompare(b.category);
+        // Return both teams and members
+        res.json({
+            teams: db.data.teams,
+            members: db.data.members
         });
-
-        // Group by category
-        const grouped = {
-            mentors: teamMembers.filter(m => m.category === 'mentor'),
-            executiveCommittee: teamMembers.filter(m => m.category === 'executiveCommittee')
-        };
-
-        res.json(grouped);
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });
     }
@@ -43,13 +34,13 @@ export const getAllTeamMembers = async (req: Request, res: Response) => {
 export const getTeamMemberById = async (req: Request, res: Response) => {
     try {
         const db = await getTeamsDB();
-        const teamMember = db.data.teams.find(t => t.id === req.params.id);
+        const member = db.data.members.find(m => m.id === req.params.id);
 
-        if (!teamMember) {
+        if (!member) {
             return res.status(404).json({ message: 'Team member not found' });
         }
 
-        res.json(teamMember);
+        res.json(member);
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });
     }
@@ -59,33 +50,15 @@ export const getTeamMemberById = async (req: Request, res: Response) => {
 // @route   POST /api/team
 // @access  Private/Admin
 export const createTeamMember = async (req: AuthRequest, res: Response) => {
+    // Simplified for now until full CRUD is needed
     try {
-        const { name, role, category, image, bio, social, order } = req.body;
-
-        if (!name || !role || !category) {
-            return res.status(400).json({ message: 'Name, role, and category are required' });
-        }
-
         const db = await getTeamsDB();
-
-        const newMember: ITeamMember = {
+        const newMember: IMember = {
             id: generateId(),
-            name,
-            role,
-            category,
-            image,
-            bio,
-            social,
-            order: order || 0,
-            isActive: true,
-            createdBy: req.user!.id,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
+            ...req.body
         };
-
-        db.data.teams.push(newMember);
+        db.data.members.push(newMember);
         await db.write();
-
         res.status(201).json(newMember);
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });
@@ -97,33 +70,14 @@ export const createTeamMember = async (req: AuthRequest, res: Response) => {
 // @access  Private/Admin
 export const updateTeamMember = async (req: AuthRequest, res: Response) => {
     try {
-        const { name, role, category, image, bio, social, order, isActive } = req.body;
-
         const db = await getTeamsDB();
-        const memberIndex = db.data.teams.findIndex(t => t.id === req.params.id);
+        const index = db.data.members.findIndex(m => m.id === req.params.id);
 
-        if (memberIndex === -1) {
-            return res.status(404).json({ message: 'Team member not found' });
-        }
+        if (index === -1) return res.status(404).json({ message: 'Member not found' });
 
-        const member = db.data.teams[memberIndex];
-
-        // Update fields
-        if (name !== undefined) member.name = name;
-        if (role !== undefined) member.role = role;
-        if (category !== undefined) member.category = category;
-        if (image !== undefined) member.image = image;
-        if (bio !== undefined) member.bio = bio;
-        if (social !== undefined) member.social = social;
-        if (order !== undefined) member.order = order;
-        if (isActive !== undefined) member.isActive = isActive;
-
-        member.updatedAt = new Date().toISOString();
-
-        db.data.teams[memberIndex] = member;
+        db.data.members[index] = { ...db.data.members[index], ...req.body };
         await db.write();
-
-        res.json(member);
+        res.json(db.data.members[index]);
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });
     }
@@ -135,10 +89,10 @@ export const updateTeamMember = async (req: AuthRequest, res: Response) => {
 export const deleteTeamMember = async (req: Request, res: Response) => {
     try {
         const db = await getTeamsDB();
-        const initialLength = db.data.teams.length;
-        db.data.teams = db.data.teams.filter(t => t.id !== req.params.id);
+        const initialLength = db.data.members.length;
+        db.data.members = db.data.members.filter(m => m.id !== req.params.id);
 
-        if (db.data.teams.length < initialLength) {
+        if (db.data.members.length < initialLength) {
             await db.write();
             res.json({ message: 'Team member removed' });
         } else {
@@ -148,4 +102,3 @@ export const deleteTeamMember = async (req: Request, res: Response) => {
         res.status(500).json({ message: (error as Error).message });
     }
 };
-

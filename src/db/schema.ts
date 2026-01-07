@@ -1,41 +1,65 @@
-export interface IEvent {
-    id: string;
-    title: string;
-    slug: string;
-    description: string;
-    type: 'workshop' | 'hackathon' | 'tech-talk' | 'coding-challenge';
-    startAt: string; // Dates stored as strings in JSON
-    endAt: string;
-    location: string;
-    capacity: number;
-    image?: string;
-    tags: string[];
-    organizer?: string;
-    attachments: string[];
-    attendees: string[]; // User IDs
-    createdBy: string;
-    createdAt: string;
-    updatedAt: string;
-}
-
-export interface ITeamMember {
+export interface IMember {
     id: string;
     name: string;
-    role: string;
-    category: 'mentor' | 'executiveCommittee';
-    image?: string;
-    bio?: string;
-    social?: {
-        email?: string;
+    teamId?: string;
+    year?: number;
+    member_year?: number;
+    photo?: string;
+    semester?: string;
+    type: 'Regular' | 'Faculty Advisor';
+    title?: string;
+    department?: string;
+    email?: string;
+    socials?: {
+        instagram?: string;
         linkedin?: string;
         github?: string;
-        twitter?: string;
+    }
+}
+
+export interface ITeam {
+    id: string;
+    name: string;
+    year: number;
+}
+
+export interface TeamSchema {
+    teams: ITeam[];
+    members: IMember[];
+}
+
+export interface IEvent {
+    id: string;
+    slug: string;
+    title: string;
+    type: string;
+    year: number;
+    status: 'upcoming' | 'completed' | 'ongoing';
+    date: string;
+    startTime: string;
+    endTime: string;
+    location: string;
+    mode: 'physical' | 'virtual' | 'hybrid';
+    shortDescription: string;
+    fullDescription?: {
+        about: string;
+        agenda: string[];
+        rules?: string | null;
     };
-    order: number;
-    isActive: boolean;
-    createdBy: string;
+    competitionDetails?: any;
+    coverImage: string;
+    gallery?: string[];
+    outcomes?: {
+        summary: string;
+        highlights: string[];
+    };
     createdAt: string;
     updatedAt: string;
+    published: boolean;
+}
+
+export interface EventSchema {
+    events: IEvent[];
 }
 
 export interface IUser {
@@ -57,26 +81,17 @@ export interface IProject {
     title: string;
     shortDesc: string;
     longDesc: string;
-    contributors: string[]; // User IDs
+    contributors: string[];
     repoUrl?: string;
     tags: string[];
     createdAt: string;
     updatedAt: string;
 }
 
-// Schemas for individual files
 export interface UserSchema {
     users: IUser[];
 }
 
 export interface ProjectSchema {
     projects: IProject[];
-}
-
-export interface TeamSchema {
-    teams: ITeamMember[];
-}
-
-export interface EventSchema {
-    events: IEvent[]; // This will be the structure for years/2026.json etc.
 }

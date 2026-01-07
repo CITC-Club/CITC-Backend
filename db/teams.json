@@ -1,0 +1,255 @@
+{
+  "teams": [
+    {
+      "id": "t_mentors_2025",
+      "name": "Mentors",
+      "year": 2025
+    },
+    {
+      "id": "t_exec_2025",
+      "name": "Executive Committee",
+      "year": 2025
+    },
+    {
+      "id": "t_faculty",
+      "name": "Faculty Advisors",
+      "year": 2025
+    }
+  ],
+  "members": [
+    {
+      "id": "fa1",
+      "name": "Er. Amit Shrivastava",
+      "type": "Faculty Advisor",
+      "title": "Faculty Advisor",
+      "department": "HOD, Department of Computer Engineering",
+      "email": "hod.computer@ncit.edu.np",
+      "photo": "/media/2025/members/faculty_advisor_amit.avif",
+      "year": 2025,
+      "member_year": 2025,
+      "teamId": "t_faculty"
+    },
+    {
+      "id": "1",
+      "name": "Manash Dev Bhatta",
+      "year": 4,
+      "member_year": 2025,
+      "email": "manash.221224@ncit.edu.np",
+      "socials": {
+        "github": "https://github.com/manashdevbhatta"
+      },
+      "photo": "/media/2025/members/manash_dev_bhatta.avif",
+      "type": "Regular",
+      "semester": "VII/VIII",
+      "teamId": "t_mentors_2025"
+    },
+    {
+      "id": "2",
+      "name": "Niraj Bhusal",
+      "year": 4,
+      "member_year": 2025,
+      "email": "niraj.221315@ncit.edu.np",
+      "socials": {
+        "github": "https://github.com/niraj5511",
+        "linkedin": "https://www.linkedin.com/in/niraj-bhusal-6262b830a/",
+        "instagram": "https://www.instagram.com/niraj_bhusal551"
+      },
+      "photo": "/media/2025/members/niraj_bhusal.avif",
+      "type": "Regular",
+      "semester": "VII/VIII",
+      "teamId": "t_mentors_2025"
+    },
+    {
+      "id": "3",
+      "name": "Apil Khadka",
+      "year": 3,
+      "member_year": 2025,
+      "email": "apil.231210@ncit.edu.np",
+      "socials": {
+        "github": "https://github.com/Apil-Khadka",
+        "linkedin": "https://www.linkedin.com/in/apil-khadka/",
+        "instagram": "https://www.instagram.com/apil.me/"
+      },
+      "photo": "/media/2025/members/apil_khadka.avif",
+      "type": "Regular",
+      "semester": "V/VI",
+      "teamId": "t_exec_2025"
+    },
+    {
+      "id": "4",
+      "name": "Anuroop Tater",
+      "year": 3,
+      "member_year": 2025,
+      "email": "anuroop.231209@ncit.edu.np",
+      "socials": {},
+      "photo": "",
+      "type": "Regular",
+      "semester": "V/VI",
+      "teamId": "t_exec_2025"
+    },
+    {
+      "id": "5",
+      "name": "Sudip Shrestha",
+      "year": 3,
+      "member_year": 2025,
+      "email": "sudip.231244@ncit.edu.np",
+      "socials": {
+        "github": "https://github.com/sudipshrestha-4",
+        "instagram": "https://www.instagram.com/sudip_shrestha4/"
+      },
+      "photo": "",
+      "type": "Regular",
+      "semester": "V/VI",
+      "teamId": "t_exec_2025"
+    },
+    {
+      "id": "6",
+      "name": "Saru chauwal",
+      "year": 3,
+      "member_year": 2025,
+      "email": "saru.231239@ncit.edu.np",
+      "socials": {
+        "github": "https://github.com/SaruChauwal",
+        "instagram": "https://www.instagram.com/_saru00/"
+      },
+      "photo": "",
+      "type": "Regular",
+      "semester": "V/VI",
+      "teamId": "t_exec_2025"
+    },
+    {
+      "id": "7",
+      "name": "Niraj Bhatta",
+      "year": 3,
+      "member_year": 2025,
+      "email": "niraj.231326@ncit.edu.np",
+      "socials": {
+        "github": "https://github.com/Niraj-Bhatta",
+        "linkedin": "www.linkedin.com/in/nirajbhatta559",
+        "instagram": "https://www.instagram.com/niraj_bhatta_4/"
+      },
+      "photo": "/media/2025/members/niaj_bhatta.avif",
+      "type": "Regular",
+      "semester": "V/VI",
+      "teamId": "t_exec_2025"
+    },
+    {
+      "id": "8",
+      "name": "Shyam Kishor Sah",
+      "year": 3,
+      "member_year": 2025,
+      "email": "shyam.231339@ncit.edu.np",
+      "socials": {},
+      "photo": "/media/2025/members/shyam_kishor_sah.avif",
+      "type": "Regular",
+      "semester": "V/VI",
+      "teamId": "t_exec_2025"
+    },
+    {
+      "id": "9",
+      "name": "Abishek Khadka",
+      "year": 3,
+      "member_year": 2025,
+      "email": "abishek.231303@ncit.edu.np",
+      "socials": {
+        "github": "https://github.com/khadkaabishek",
+        "linkedin": "https://www.linkedin.com/in/abishekkhadkaa/",
+        "instagram": "https://www.instagram.com/abishek_khadka73/"
+      },
+      "photo": "/media/2025/members/abishek_khadka.avif",
+      "type": "Regular",
+      "semester": "V/VI",
+      "teamId": "t_exec_2025"
+    },
+    {
+      "id": "10",
+      "name": "Arpan Adhikhari",
+      "year": 3,
+      "member_year": 2025,
+      "email": "arpan.231309@ncit.edu.np",
+      "socials": {
+        "github": "https://github.com/adhikari-arpan",
+        "linkedin": "https://www.linkedin.com/in/adhikari-arpan63/",
+        "instagram": "https://www.instagram.com/adhikari__arpan"
+      },
+      "photo": "/media/2025/members/arpan_adhikari.avif",
+      "type": "Regular",
+      "semester": "V/VI",
+      "teamId": "t_exec_2025"
+    },
+    {
+      "id": "11",
+      "name": "Sandesh Khadka",
+      "year": 3,
+      "member_year": 2025,
+      "email": "sandesh.231335@ncit.edu.np",
+      "socials": {
+        "github": "https://github.com/SandeshKhadka23",
+        "linkedin": "https://www.linkedin.com/in/sandeshkhadka1/",
+        "instagram": "https://www.instagram.com/sandesh.khadka.2/?hl=en"
+      },
+      "photo": "/media/2025/members/sandesh_khadka.avif",
+      "type": "Regular",
+      "semester": "V/VI",
+      "teamId": "t_exec_2025"
+    },
+    {
+      "id": "12",
+      "name": "Pranish Manandhar",
+      "year": 2,
+      "member_year": 2025,
+      "email": "pranish.241324@ncit.edu.np",
+      "socials": {
+        "github": "https://github.com/PranishManandhar",
+        "linkedin": "https://www.linkedin.com/in/pranish-manandhar-54452b245/",
+        "instagram": "https://www.instagram.com/_pranish.manandhar/"
+      },
+      "photo": "",
+      "type": "Regular",
+      "semester": "III/IV",
+      "teamId": "t_exec_2025"
+    },
+    {
+      "id": "13",
+      "name": "Abaneesh Shrestha",
+      "year": 2,
+      "member_year": 2025,
+      "email": "abaneesh.241203@ncit.edu.np",
+      "socials": {
+        "github": "https://github.com/abaneeshshrestha-glitch",
+        "linkedin": "www.linkedin.com/in/Vanity URL name",
+        "instagram": "https://www.instagram.com/abaneeeeshh/"
+      },
+      "photo": "",
+      "type": "Regular",
+      "semester": "III/IV",
+      "teamId": "t_exec_2025"
+    },
+    {
+      "id": "14",
+      "name": "Biraj Joshi",
+      "year": 2,
+      "member_year": 2025,
+      "email": "biraj.241212@ncit.edu.np",
+      "socials": {},
+      "photo": "/media/2025/members/biraj_joshi.avif",
+      "type": "Regular",
+      "semester": "III/IV",
+      "teamId": "t_exec_2025"
+    },
+    {
+      "id": "15",
+      "name": "Iksha Gurung",
+      "year": 2,
+      "member_year": 2025,
+      "email": "iksha.241312@ncit.edu.np",
+      "socials": {
+        "github": "iksha241312-debug"
+      },
+      "photo": "/media/2025/members/iksha_gurung.avif",
+      "type": "Regular",
+      "semester": "III/IV",
+      "teamId": "t_exec_2025"
+    }
+  ]
+}

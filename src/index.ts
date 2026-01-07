@@ -1,6 +1,7 @@
 import express from 'express';
 
 import cors from 'cors';
+import path from 'path';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
@@ -20,6 +21,7 @@ app.use(cors());
 app.use(helmet());
 app.use(morgan('dev'));
 app.use(express.json());
+app.use('/media', express.static(path.join(__dirname, '../media')));
 
 // Database Connection
 // Database Connection removed (migrating to LowDB)
