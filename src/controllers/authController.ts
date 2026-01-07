@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
+import { googleClient } from '../config/google';
 import { getUsersDB } from '../db/db';
 import { IUser } from '../db/schema';
 
@@ -82,6 +83,68 @@ export const login = async (req: Request, res: Response) => {
         res.status(500).json({ message: (error as Error).message });
     }
 };
+
+export const googleLogin = async (req: Request, res: Response) => {
+    const { token } = req.body;
+
+    if (!token) {
+        return res.status(400).json({ message: 'No token provided' });
+    }
+
+    try {
+        const ticket = await googleClient.verifyIdToken({
+            idToken: token,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+
+        const payload = ticket.getPayload();
+
+        if (!payload || !payload.email) {
+            return res.status(400).json({ message: 'Invalid Google Token' });
+        }
+
+        const { email, name, picture } = payload;
+
+        const db = await getUsersDB();
+        let user = db.data.users.find(u => u.email === email);
+        let status = 200;
+
+        if (!user) {
+            // Register new google user
+            user = {
+                id: generateId(),
+                name: name || 'Google User',
+                email: email,
+                passwordHash: '', // No password for google users
+                role: 'guest', // Default role
+                isVerified: true, // Google emails are verified
+                avatarUrl: picture,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            db.data.users.push(user);
+            await db.write();
+            status = 201;
+        } else {
+            // Update existing user (optional: update avatar/name?)
+            // For now, just logging in
+        }
+
+        res.status(status).json({
+            _id: user.id,
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            token: generateToken(user.id, user.role),
+        });
+
+    } catch (error) {
+        console.error('Google Auth Error:', error);
+        res.status(401).json({ message: 'Google authentication failed' });
+    }
+};
+
 
 export const getMe = async (req: Request, res: Response) => {
     try {

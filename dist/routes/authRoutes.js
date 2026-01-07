@@ -9,5 +9,6 @@ const auth_1 = require("../middleware/auth");
 const router = express_1.default.Router();
 router.post('/register', authController_1.register);
 router.post('/login', authController_1.login);
+router.post('/google-login', authController_1.googleLogin);
 router.get('/me', auth_1.protect, authController_1.getMe);
 exports.default = router;

@@ -23,9 +23,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getMe = exports.login = exports.register = void 0;
+exports.getMe = exports.googleLogin = exports.login = exports.register = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const google_1 = require("../config/google");
 const db_1 = require("../db/db");
 // Helper for ID generation (using randomUUID if available or fallback)
 const generateId = () => {
@@ -98,6 +99,60 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.login = login;
+const googleLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { token } = req.body;
+    if (!token) {
+        return res.status(400).json({ message: 'No token provided' });
+    }
+    try {
+        const ticket = yield google_1.googleClient.verifyIdToken({
+            idToken: token,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+        const payload = ticket.getPayload();
+        if (!payload || !payload.email) {
+            return res.status(400).json({ message: 'Invalid Google Token' });
+        }
+        const { email, name, picture } = payload;
+        const db = yield (0, db_1.getUsersDB)();
+        let user = db.data.users.find(u => u.email === email);
+        let status = 200;
+        if (!user) {
+            // Register new google user
+            user = {
+                id: generateId(),
+                name: name || 'Google User',
+                email: email,
+                passwordHash: '', // No password for google users
+                role: 'guest', // Default role
+                isVerified: true, // Google emails are verified
+                avatarUrl: picture,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            db.data.users.push(user);
+            yield db.write();
+            status = 201;
+        }
+        else {
+            // Update existing user (optional: update avatar/name?)
+            // For now, just logging in
+        }
+        res.status(status).json({
+            _id: user.id,
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            token: generateToken(user.id, user.role),
+        });
+    }
+    catch (error) {
+        console.error('Google Auth Error:', error);
+        res.status(401).json({ message: 'Google authentication failed' });
+    }
+});
+exports.googleLogin = googleLogin;
 const getMe = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const db = yield (0, db_1.getUsersDB)();
