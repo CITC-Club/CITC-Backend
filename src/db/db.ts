@@ -47,6 +47,21 @@ try {
     console.error("Error reading teams.json:", error);
 }
 
+// Read events data from JSON file
+const eventsDataPath = path.resolve(process.cwd(), 'src/data/events.json');
+let eventsData: any[] = [];
+
+try {
+    if (fs.existsSync(eventsDataPath)) {
+        const fileContent = fs.readFileSync(eventsDataPath, 'utf-8');
+        eventsData = JSON.parse(fileContent);
+    } else {
+        console.warn(`Events data file not found at ${eventsDataPath}`);
+    }
+} catch (error) {
+    console.error("Error reading events.json:", error);
+}
+
 const initialFacultyAdvisor: IMember = {
     id: "fa1",
     name: teamsData.facultyAdvisor?.name || "Er. Amit Shrivastava",
@@ -77,6 +92,13 @@ const initialMembers: IMember[] = teamsData.teamMembers.map((m: any) => ({
     teamId: m.year === 4 ? "t_mentors_2025" : "t_exec_2025"
 }));
 
+// Process events to add image paths
+const initialEvents: IEvent[] = eventsData.map((e: any) => ({
+    ...e,
+    coverImage: `/media/${e.year}/events/${e.coverImage}`, // Assuming event images are in year/events/
+    gallery: e.gallery?.map((img: string) => `/media/${e.year}/events/${img}`)
+}));
+
 // Initialize DBs with default data
 const defaultUsers: UserSchema = { users: [] };
 const defaultProjects: ProjectSchema = { projects: [] };
@@ -101,4 +123,14 @@ export const getTeamsDB = async () => {
     return db;
 };
 
-export const getEventsDB = async () => await JSONFilePreset<EventSchema>(path.join(DATA_DIR, 'events.json'), defaultEvents);
+export const getEventsDB = async () => {
+    const db = await JSONFilePreset<EventSchema>(path.join(DATA_DIR, 'events.json'), defaultEvents);
+
+    if (db.data.events.length === 0 && initialEvents.length > 0) {
+        db.data.events = initialEvents;
+        await db.write();
+        console.log('Seeded events.json with initial data');
+    }
+
+    return db;
+};

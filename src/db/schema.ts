@@ -32,30 +32,41 @@ export interface IEvent {
     id: string;
     slug: string;
     title: string;
-    type: string;
+    type: 'session' | 'workshop' | 'competition' | 'seminar' | 'webinar' | 'meeting' | 'social' | 'other';
     year: number;
-    status: 'upcoming' | 'completed' | 'ongoing';
-    date: string;
-    startTime: string;
-    endTime: string;
+    status: 'upcoming' | 'completed' | 'cancelled';
+    date: string; // YYYY-MM-DD
+    startTime: string; // HH:MM
+    endTime: string; // HH:MM
     location: string;
-    mode: 'physical' | 'virtual' | 'hybrid';
+    mode: 'physical' | 'online' | 'hybrid';
+
     shortDescription: string;
-    fullDescription?: {
+
+    fullDescription: {
         about: string;
-        agenda: string[];
-        rules?: string | null;
+        agenda: string[] | null;
+        rules: string[] | null;
     };
-    competitionDetails?: any;
+
+    competitionDetails: {
+        eligibility: string;
+        teamSize: string;
+        prizes: string[];
+    } | null;
+
     coverImage: string;
-    gallery?: string[];
-    outcomes?: {
+    gallery: string[]; // empty for upcoming
+
+    outcomes: {
         summary: string;
         highlights: string[];
-    };
-    createdAt: string;
-    updatedAt: string;
+    } | null;
+
     published: boolean;
+
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 export interface EventSchema {

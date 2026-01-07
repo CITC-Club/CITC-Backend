@@ -15,8 +15,44 @@ const generateId = () => crypto.randomUUID();
 export const getEvents = async (req: Request, res: Response) => {
     try {
         const db = await getEventsDB();
-        // Sort by date ??
-        res.json(db.data.events);
+        let events = db.data.events;
+
+        // 1. Filter by published status (always enforce for public API, unless admin - but spec says "Show only events where published === true")
+        // Assuming this is public-facing.
+        events = events.filter(e => e.published === true);
+
+        // 2. Query Filters
+        const { year, type, status } = req.query;
+
+        if (year) {
+            events = events.filter(e => e.year === parseInt(year as string));
+        }
+
+        if (type) {
+            // Case-insensitive comparison? Spec doesn't say, but safe practice.
+            events = events.filter(e => e.type.toLowerCase() === (type as string).toLowerCase());
+        }
+
+        if (status) {
+            events = events.filter(e => e.status === (status as string));
+        }
+
+        // 3. Sorting
+        // "Sort by date (upcoming first)"
+        // Strategy:
+        // - Split into Upcoming vs Completed/Cancelled
+        // - Upcoming: Sort ASC (nearest first)
+        // - Completed: Sort DESC (most recent first)
+        // - Concatenate: Upcoming + Completed
+        // OR simpler: Just sort by status priority (upcoming > others) then date?
+        // Let's stick to the split strategy as it's most user-friendly.
+
+        const upcoming = events.filter(e => e.status === 'upcoming').sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        const past = events.filter(e => e.status !== 'upcoming').sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+        const sortedEvents = [...upcoming, ...past];
+
+        res.json(sortedEvents);
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });
     }

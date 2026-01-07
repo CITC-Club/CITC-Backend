@@ -1,0 +1,111 @@
+[
+    {
+        "id": "evt_001",
+        "slug": "intro-to-python-2025",
+        "title": "Intro to Python Workshop",
+        "type": "workshop",
+        "year": 2025,
+        "status": "completed",
+        "date": "2025-01-10",
+        "startTime": "10:00",
+        "endTime": "13:00",
+        "location": "Block A, Room 301",
+        "mode": "physical",
+        "shortDescription": "Kickstart your coding journey with Python basics.",
+        "fullDescription": {
+            "about": "This workshop covers variables, loops, and functions for absolute beginners. No prior experience needed!",
+            "agenda": [
+                "10:00 - Setup",
+                "10:30 - Basics",
+                "11:30 - Hands-on",
+                "12:30 - Q&A"
+            ],
+            "rules": [
+                "Bring your own laptop"
+            ]
+        },
+        "competitionDetails": null,
+        "coverImage": "python_workshop_cover.jpg",
+        "gallery": [
+            "python_ws_1.jpg",
+            "python_ws_2.jpg",
+            "python_ws_3.jpg"
+        ],
+        "outcomes": {
+            "summary": "Over 50 students attended and built their first calculator app.",
+            "highlights": [
+                "50+ Attendees",
+                "Interactive Session",
+                "Swag distribution"
+            ]
+        },
+        "published": true
+    },
+    {
+        "id": "evt_002",
+        "slug": "code-flow-2025",
+        "title": "CodeFlow 2025: Hackathon",
+        "type": "competition",
+        "year": 2025,
+        "status": "upcoming",
+        "date": "2025-04-15",
+        "startTime": "09:00",
+        "endTime": "18:00",
+        "location": "College Auditorium",
+        "mode": "physical",
+        "shortDescription": "24-hour hackathon solving real-world challenges.",
+        "fullDescription": {
+            "about": "CodeFlow is our annual flagship hackathon. Build, ship, and win prizes!",
+            "agenda": [
+                "09:00 - Opening",
+                "10:00 - Hacking Starts",
+                "17:00 - Submissions"
+            ],
+            "rules": [
+                "Code must be written during event",
+                "Teams of 3-4"
+            ]
+        },
+        "competitionDetails": {
+            "eligibility": "All undergraduates",
+            "teamSize": "3-4 Members",
+            "prizes": [
+                "1st: Rs 15,000",
+                "2nd: Rs 10,000",
+                "3rd: Rs 5,000"
+            ]
+        },
+        "coverImage": "codeflow_cover.jpg",
+        "gallery": [],
+        "outcomes": null,
+        "published": true
+    },
+    {
+        "id": "evt_003",
+        "slug": "git-seminar",
+        "title": "Mastering Git & GitHub",
+        "type": "seminar",
+        "year": 2025,
+        "status": "upcoming",
+        "date": "2025-02-20",
+        "startTime": "14:00",
+        "endTime": "16:00",
+        "location": "Virtual (Zoom)",
+        "mode": "online",
+        "shortDescription": "Learn version control best practices.",
+        "fullDescription": {
+            "about": "Essential seminar for developers to understand collaboration workflows using Git.",
+            "agenda": [
+                "Version Control Concepts",
+                "Branching & Merging",
+                "Pull Requests"
+            ],
+            "rules": null
+        },
+        "competitionDetails": null,
+        "coverImage": "git_seminar_cover.jpg",
+        "gallery": [],
+        "outcomes": null,
+        "published": true
+    }
+]
