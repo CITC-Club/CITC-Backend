@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
@@ -92,18 +93,18 @@ export const googleLogin = async (req: Request, res: Response) => {
     }
 
     try {
-        const ticket = await googleClient.verifyIdToken({
-            idToken: token,
-            audience: process.env.GOOGLE_CLIENT_ID,
+        // Use axios to fetch user info from Google using the Access Token
+        const response = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
         });
 
-        const payload = ticket.getPayload();
+        const { email, name, picture } = response.data;
 
-        if (!payload || !payload.email) {
-            return res.status(400).json({ message: 'Invalid Google Token' });
+        if (!email) {
+            return res.status(400).json({ message: 'Invalid Google Token Response' });
         }
-
-        const { email, name, picture } = payload;
 
         const db = await getUsersDB();
         let user = db.data.users.find(u => u.email === email);
@@ -125,9 +126,6 @@ export const googleLogin = async (req: Request, res: Response) => {
             db.data.users.push(user);
             await db.write();
             status = 201;
-        } else {
-            // Update existing user (optional: update avatar/name?)
-            // For now, just logging in
         }
 
         res.status(status).json({
