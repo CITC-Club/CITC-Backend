@@ -14,7 +14,7 @@ import teamRoutes from "./routes/teamRoutes";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5053;
+const PORT = process.env.PORT;
 
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 app.use(
