@@ -13,15 +13,41 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteEvent = exports.updateEvent = exports.rsvpEvent = exports.createEvent = exports.getEvent = exports.getEvents = void 0;
-const db_1 = require("../db/db");
+const db_1 = require("../db/db"); // removed getAllEvents as getEventsDB covers it now
 const crypto_1 = __importDefault(require("crypto"));
 const generateId = () => crypto_1.default.randomUUID();
 const getEvents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const events = yield (0, db_1.getAllEvents)();
-        // Sort by startAt
-        events.sort((a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime());
-        res.json(events);
+        const db = yield (0, db_1.getEventsDB)();
+        let events = db.data.events;
+        // 1. Filter by published status (always enforce for public API, unless admin - but spec says "Show only events where published === true")
+        // Assuming this is public-facing.
+        events = events.filter(e => e.published === true);
+        // 2. Query Filters
+        const { year, type, status } = req.query;
+        if (year) {
+            events = events.filter(e => e.year === parseInt(year));
+        }
+        if (type) {
+            // Case-insensitive comparison? Spec doesn't say, but safe practice.
+            events = events.filter(e => e.type.toLowerCase() === type.toLowerCase());
+        }
+        if (status) {
+            events = events.filter(e => e.status === status);
+        }
+        // 3. Sorting
+        // "Sort by date (upcoming first)"
+        // Strategy:
+        // - Split into Upcoming vs Completed/Cancelled
+        // - Upcoming: Sort ASC (nearest first)
+        // - Completed: Sort DESC (most recent first)
+        // - Concatenate: Upcoming + Completed
+        // OR simpler: Just sort by status priority (upcoming > others) then date?
+        // Let's stick to the split strategy as it's most user-friendly.
+        const upcoming = events.filter(e => e.status === 'upcoming').sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        const past = events.filter(e => e.status !== 'upcoming').sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        const sortedEvents = [...upcoming, ...past];
+        res.json(sortedEvents);
     }
     catch (error) {
         res.status(500).json({ message: error.message });
@@ -30,14 +56,10 @@ const getEvents = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 exports.getEvents = getEvents;
 const getEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const events = yield (0, db_1.getAllEvents)();
-        const event = events.find(e => e.slug === req.params.slug);
+        const db = yield (0, db_1.getEventsDB)();
+        const event = db.data.events.find(e => e.slug === req.params.slug);
         if (event) {
-            // Manual populate createdBy
-            const usersDb = yield (0, db_1.getUsersDB)();
-            const creator = usersDb.data.users.find(u => u.id === event.createdBy);
-            const populatedEvent = Object.assign(Object.assign({}, event), { createdBy: creator ? { _id: creator.id, name: creator.name } : null });
-            res.json(populatedEvent);
+            res.json(event);
         }
         else {
             res.status(404).json({ message: 'Event not found' });
@@ -50,12 +72,8 @@ const getEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 exports.getEvent = getEvent;
 const createEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { startAt } = req.body;
-        const year = new Date(startAt).getFullYear().toString();
-        const db = yield (0, db_1.getEventsDB)(year);
-        // @ts-ignore
-        const userId = req.user.id;
-        const newEvent = Object.assign(Object.assign({ id: generateId() }, req.body), { createdBy: userId, attendees: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+        const db = yield (0, db_1.getEventsDB)();
+        const newEvent = Object.assign(Object.assign({ id: generateId() }, req.body), { createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
         db.data.events.push(newEvent);
         yield db.write();
         res.status(201).json(newEvent);
@@ -65,78 +83,25 @@ const createEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 exports.createEvent = createEvent;
+// Simplified RSVP? Or remove if not needed. Keeping simplified version just in case.
 const rsvpEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        // We need to find the event location to update it
-        // This is inefficient but necessary without an index mapping ID -> Year
-        const events = yield (0, db_1.getAllEvents)();
-        const event = events.find(e => e.id === req.params.id);
-        if (event) {
-            const year = new Date(event.startAt).getFullYear().toString();
-            const db = yield (0, db_1.getEventsDB)(year);
-            const eventIndex = db.data.events.findIndex(e => e.id === req.params.id);
-            if (eventIndex === -1) {
-                return res.status(404).json({ message: 'Event not found in year partition' });
-            }
-            // @ts-ignore
-            const userId = req.user.id;
-            if (db.data.events[eventIndex].attendees.includes(userId)) {
-                return res.status(400).json({ message: 'Already RSVPed' });
-            }
-            db.data.events[eventIndex].attendees.push(userId);
-            yield db.write();
-            res.json({ message: 'RSVP successful' });
-        }
-        else {
-            res.status(404).json({ message: 'Event not found' });
-        }
-    }
-    catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+    // Current schema doesn't have attendees list in the simplified IEvent I defined?
+    // Let's check schema.
+    // IEvent in my schema update DOES NOT have attendees.
+    // So I will remove RSVP for now to avoid errors.
+    res.status(501).json({ message: 'RSVP not implemented in new schema' });
 });
 exports.rsvpEvent = rsvpEvent;
 const updateEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        // Find existing event to get year
-        const allEvents = yield (0, db_1.getAllEvents)();
-        const existingEvent = allEvents.find(e => e.id === req.params.id);
-        if (!existingEvent) {
+        const db = yield (0, db_1.getEventsDB)();
+        const index = db.data.events.findIndex(e => e.id === req.params.id);
+        if (index === -1) {
             return res.status(404).json({ message: 'Event not found' });
         }
-        const oldYear = new Date(existingEvent.startAt).getFullYear().toString();
-        // Check if startAt is changing and if it changes the year
-        const newStartAt = req.body.startAt;
-        let newYear = oldYear;
-        if (newStartAt) {
-            newYear = new Date(newStartAt).getFullYear().toString();
-        }
-        if (oldYear !== newYear) {
-            // Move event: Delete from old db, add to new db
-            const oldDb = yield (0, db_1.getEventsDB)(oldYear);
-            const newDb = yield (0, db_1.getEventsDB)(newYear);
-            const eventIndex = oldDb.data.events.findIndex(e => e.id === req.params.id);
-            if (eventIndex > -1) {
-                const [movedEvent] = oldDb.data.events.splice(eventIndex, 1);
-                const updatedEvent = Object.assign(Object.assign(Object.assign({}, movedEvent), req.body), { updatedAt: new Date().toISOString() });
-                newDb.data.events.push(updatedEvent);
-                yield oldDb.write();
-                yield newDb.write();
-                return res.json(updatedEvent);
-            }
-        }
-        else {
-            // Update in place
-            const db = yield (0, db_1.getEventsDB)(oldYear);
-            const eventIndex = db.data.events.findIndex(e => e.id === req.params.id);
-            if (eventIndex > -1) {
-                const updatedEvent = Object.assign(Object.assign(Object.assign({}, db.data.events[eventIndex]), req.body), { updatedAt: new Date().toISOString() });
-                db.data.events[eventIndex] = updatedEvent;
-                yield db.write();
-                return res.json(updatedEvent);
-            }
-        }
-        res.status(404).json({ message: 'Event not found during update' });
+        db.data.events[index] = Object.assign(Object.assign(Object.assign({}, db.data.events[index]), req.body), { updatedAt: new Date().toISOString() });
+        yield db.write();
+        res.json(db.data.events[index]);
     }
     catch (error) {
         res.status(500).json({ message: error.message });
@@ -145,13 +110,7 @@ const updateEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 exports.updateEvent = updateEvent;
 const deleteEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const allEvents = yield (0, db_1.getAllEvents)();
-        const existingEvent = allEvents.find(e => e.id === req.params.id);
-        if (!existingEvent) {
-            return res.status(404).json({ message: 'Event not found' });
-        }
-        const year = new Date(existingEvent.startAt).getFullYear().toString();
-        const db = yield (0, db_1.getEventsDB)(year);
+        const db = yield (0, db_1.getEventsDB)();
         const initialLength = db.data.events.length;
         db.data.events = db.data.events.filter(e => e.id !== req.params.id);
         if (db.data.events.length < initialLength) {
@@ -159,7 +118,7 @@ const deleteEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             res.json({ message: 'Event removed' });
         }
         else {
-            res.status(404).json({ message: 'Event not found in partition' });
+            res.status(404).json({ message: 'Event not found' });
         }
     }
     catch (error) {

@@ -1,136 +1,191 @@
 import { JSONFilePreset } from 'lowdb/node';
 import path from 'path';
 import fs from 'fs';
-import { UserSchema, ProjectSchema, TeamSchema, EventSchema, IEvent, IUser, IProject, IMember, ITeam } from './schema';
+import {
+  UserSchema,
+  ProjectSchema,
+  TeamSchema,
+  EventSchema,
+  IEvent,
+  IMember,
+  ITeam,
+} from './schema';
 
-const DATA_DIR = path.resolve(process.cwd(), 'db');
-const MEDIA_DIR = path.resolve(process.cwd(), 'media');
+/* -------------------------------------------------------------------------- */
+/*                                   Paths                                    */
+/* -------------------------------------------------------------------------- */
 
-// Ensure directories exist
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-if (!fs.existsSync(MEDIA_DIR)) fs.mkdirSync(MEDIA_DIR, { recursive: true });
+const ROOT = process.cwd();
+const DATA_DIR = path.join(ROOT, 'db');
+const MEDIA_DIR = path.join(ROOT, 'media');
+const SOURCE_DATA_DIR = path.join(ROOT, 'src/data');
 
-// Initial Teams
+const DB_PATHS = {
+  users: path.join(DATA_DIR, 'users.json'),
+  projects: path.join(DATA_DIR, 'projects.json'),
+  teams: path.join(DATA_DIR, 'teams.json'),
+  events: path.join(DATA_DIR, 'events.json'),
+};
+
+/* -------------------------------------------------------------------------- */
+/*                             Ensure Directories                              */
+/* -------------------------------------------------------------------------- */
+
+function ensureDir(dir: string) {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+}
+
+ensureDir(DATA_DIR);
+ensureDir(MEDIA_DIR);
+
+/* -------------------------------------------------------------------------- */
+/*                                  Helpers                                   */
+/* -------------------------------------------------------------------------- */
+
+const getTeamImagePath = (filename?: string, year?: number): string =>
+  filename && year ? `/media/${year}/members/${filename}` : '';
+
+function readJSON<T>(filePath: string, fallback: T): T {
+  try {
+    if (!fs.existsSync(filePath)) return fallback;
+    return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+  } catch (err) {
+    console.error(`Failed to read ${filePath}`, err);
+    return fallback;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/*                             Initial Static Data                              */
+/* -------------------------------------------------------------------------- */
+
 const initialTeams: ITeam[] = [
-    { id: "t_mentors_2025", name: "Mentors", year: 2025 },
-    { id: "t_exec_2025", name: "Executive Committee", year: 2025 },
-    { id: "t_faculty", name: "Faculty Advisors", year: 2025 }
+  { id: 't_mentors_2025', name: 'Mentors', year: 2025 },
+  { id: 't_exec_2025', name: 'Executive Committee', year: 2025 },
+  { id: 't_faculty', name: 'Faculty Advisors', year: 2025 },
 ];
 
-// Helpers
-const getTeamImagePath = (filename: string, year: number): string => {
-    if (!filename) return "";
-    return `/media/${year}/members/${filename}`;
-};
+const teamsSeedData = readJSON<any>(
+  path.join(SOURCE_DATA_DIR, 'teams.json'),
+  { teamMembers: [], facultyAdvisor: {} }
+);
 
-const getMemberYearFromEmail = (email: string): number => {
-    // Extract the batch part from email (e.g., 22 from manash.221224)
-    const match = email.match(/\.(\d{2})\d{4}@/);
-    if (match && match[1]) {
-        return 2000 + parseInt(match[1]);
-    }
-    return 2024;
-};
+const eventsSeedData = readJSON<any[]>(
+  path.join(SOURCE_DATA_DIR, 'events.json'),
+  []
+);
 
-// Read initial data from JSON file
-const teamsDataPath = path.resolve(process.cwd(), 'src/data/teams.json');
-let teamsData: any = { teamMembers: [], facultyAdvisor: {} };
+/* -------------------------------------------------------------------------- */
+/*                               Seed Builders                                 */
+/* -------------------------------------------------------------------------- */
 
-try {
-    if (fs.existsSync(teamsDataPath)) {
-        const fileContent = fs.readFileSync(teamsDataPath, 'utf-8');
-        teamsData = JSON.parse(fileContent);
-    } else {
-        console.warn(`Teams data file not found at ${teamsDataPath}`);
-    }
-} catch (error) {
-    console.error("Error reading teams.json:", error);
-}
+function buildFacultyAdvisor(): IMember {
+  const fa = teamsSeedData.facultyAdvisor ?? {};
 
-// Read events data from JSON file
-const eventsDataPath = path.resolve(process.cwd(), 'src/data/events.json');
-let eventsData: any[] = [];
-
-try {
-    if (fs.existsSync(eventsDataPath)) {
-        const fileContent = fs.readFileSync(eventsDataPath, 'utf-8');
-        eventsData = JSON.parse(fileContent);
-    } else {
-        console.warn(`Events data file not found at ${eventsDataPath}`);
-    }
-} catch (error) {
-    console.error("Error reading events.json:", error);
-}
-
-const initialFacultyAdvisor: IMember = {
-    id: "fa1",
-    name: teamsData.facultyAdvisor?.name || "Er. Amit Shrivastava",
-    type: "Faculty Advisor",
-    title: teamsData.facultyAdvisor?.title || "Faculty Advisor",
-    department: teamsData.facultyAdvisor?.department || "HOD, Department of Computer Engineering",
-    email: teamsData.facultyAdvisor?.email || "hod.computer@ncit.edu.np",
-    photo: getTeamImagePath(teamsData.facultyAdvisor?.image, 2025), // Defaulting to 2025 as not in JSON
+  return {
+    id: 'fa1',
+    name: fa.name || 'Er. Amit Shrivastava',
+    type: 'Faculty Advisor',
+    title: fa.title || 'Faculty Advisor',
+    department: fa.department || 'HOD, Department of Computer Engineering',
+    email: fa.email || 'hod.computer@ncit.edu.np',
+    photo: getTeamImagePath(fa.image, 2025),
     year: 2025,
     member_year: 2025,
-    teamId: "t_faculty"
-};
+    teamId: 't_faculty',
+  };
+}
 
-const initialMembers: IMember[] = teamsData.teamMembers.map((m: any) => ({
+function buildMembers(): IMember[] {
+  return teamsSeedData.teamMembers.map((m: any) => ({
     id: m.id,
     name: m.name,
+    email: m.email,
     year: m.year,
     member_year: m.member_year,
-    email: m.email,
-    socials: {
-        github: m.github !== "N/A" ? m.github : undefined,
-        linkedin: m.linkedin !== "N/A" ? m.linkedin : undefined,
-        instagram: m.instagram !== "N/A" && m.instagram !== "Iksha Gurung insta" ? m.instagram : undefined
-    },
     photo: getTeamImagePath(m.image, m.member_year),
-    type: "Regular",
-    semester: m.year === 4 ? "VII/VIII" : (m.year === 3 ? "V/VI" : "III/IV"), // Approximate semester
-    teamId: m.year === 4 ? "t_mentors_2025" : "t_exec_2025"
-}));
+    socials: {
+      github: m.github !== 'N/A' ? m.github : undefined,
+      linkedin: m.linkedin !== 'N/A' ? m.linkedin : undefined,
+      instagram:
+        m.instagram !== 'N/A' && m.instagram !== 'Iksha Gurung insta'
+          ? m.instagram
+          : undefined,
+    },
+    type: 'Regular',
+    semester:
+      m.year === 4 ? 'VII/VIII' : m.year === 3 ? 'V/VI' : 'III/IV',
+    teamId: m.year === 4 ? 't_mentors_2025' : 't_exec_2025',
+  }));
+}
 
-// Process events to add image paths
-const initialEvents: IEvent[] = eventsData.map((e: any) => ({
+function buildEvents(): IEvent[] {
+  return eventsSeedData.map((e: any) => ({
     ...e,
-    coverImage: `/media/${e.year}/events/${e.coverImage}`, // Assuming event images are in year/events/
-    gallery: e.gallery?.map((img: string) => `/media/${e.year}/events/${img}`)
-}));
+    coverImage: `/media/${e.year}/events/${e.coverImage}`,
+    gallery: e.gallery?.map(
+      (img: string) => `/media/${e.year}/events/${img}`
+    ),
+  }));
+}
 
-// Initialize DBs with default data
-const defaultUsers: UserSchema = { users: [] };
-const defaultProjects: ProjectSchema = { projects: [] };
-const defaultTeams: TeamSchema = { teams: [], members: [] };
-const defaultEvents: EventSchema = { events: [] };
+/* -------------------------------------------------------------------------- */
+/*                               DB Singletons                                 */
+/* -------------------------------------------------------------------------- */
 
-// Singleton instances
-export const getUsersDB = async () => await JSONFilePreset<UserSchema>(path.join(DATA_DIR, 'users.json'), defaultUsers);
-export const getProjectsDB = async () => await JSONFilePreset<ProjectSchema>(path.join(DATA_DIR, 'projects.json'), defaultProjects);
+let usersDB: Awaited<ReturnType<typeof JSONFilePreset<UserSchema>>>;
+let projectsDB: Awaited<ReturnType<typeof JSONFilePreset<ProjectSchema>>>;
+let teamsDB: Awaited<ReturnType<typeof JSONFilePreset<TeamSchema>>>;
+let eventsDB: Awaited<ReturnType<typeof JSONFilePreset<EventSchema>>>;
 
-export const getTeamsDB = async () => {
-    const db = await JSONFilePreset<TeamSchema>(path.join(DATA_DIR, 'teams.json'), defaultTeams);
+/* -------------------------------------------------------------------------- */
+/*                             Initialization API                              */
+/* -------------------------------------------------------------------------- */
 
-    // Seed if empty
-    if (db.data.members.length === 0 && db.data.teams.length === 0) {
-        db.data.teams = initialTeams;
-        db.data.members = [initialFacultyAdvisor, ...initialMembers];
-        await db.write();
-        console.log('Seeded teams.json with initial data');
-    }
+export async function initDB() {
+  usersDB = await JSONFilePreset<UserSchema>(DB_PATHS.users, { users: [] });
+  projectsDB = await JSONFilePreset<ProjectSchema>(DB_PATHS.projects, { projects: [] });
+  teamsDB = await JSONFilePreset<TeamSchema>(DB_PATHS.teams, { teams: [], members: [] });
+  eventsDB = await JSONFilePreset<EventSchema>(DB_PATHS.events, { events: [] });
 
-    return db;
-};
+  await seedTeams();
+  await seedEvents();
 
-export const getEventsDB = async () => {
-    const db = await JSONFilePreset<EventSchema>(path.join(DATA_DIR, 'events.json'), defaultEvents);
+  console.log('LowDB initialized');
+}
 
-    if (db.data.events.length === 0 && initialEvents.length > 0) {
-        db.data.events = initialEvents;
-        await db.write();
-        console.log('Seeded events.json with initial data');
-    }
+/* -------------------------------------------------------------------------- */
+/*                                  Seeding                                    */
+/* -------------------------------------------------------------------------- */
 
-    return db;
-};
+async function seedTeams() {
+  if (teamsDB.data.teams.length > 0) return;
+
+  teamsDB.data.teams = initialTeams;
+  teamsDB.data.members = [
+    buildFacultyAdvisor(),
+    ...buildMembers(),
+  ];
+
+  await teamsDB.write();
+  console.log('Seeded teams database');
+}
+
+async function seedEvents() {
+  if (eventsDB.data.events.length > 0) return;
+
+  eventsDB.data.events = buildEvents();
+  await eventsDB.write();
+  console.log('Seeded events database');
+}
+
+/* -------------------------------------------------------------------------- */
+/*                               DB Accessors                                  */
+/* -------------------------------------------------------------------------- */
+
+export const getUsersDB = () => usersDB;
+export const getProjectsDB = () => projectsDB;
+export const getTeamsDB = () => teamsDB;
+export const getEventsDB = () => eventsDB;

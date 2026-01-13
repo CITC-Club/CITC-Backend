@@ -27,9 +27,6 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use('/media', express.static(path.join(__dirname, '../media')));
 
-// Database Connection
-// Database Connection removed (migrating to LowDB)
-// import { initDB } from './db/db'; // Will be added later
 
 // Routes
 app.use('/api/auth', authRoutes);

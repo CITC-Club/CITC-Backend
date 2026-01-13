@@ -24,9 +24,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMe = exports.googleLogin = exports.login = exports.register = void 0;
+const axios_1 = __importDefault(require("axios"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
-const google_1 = require("../config/google");
 const db_1 = require("../db/db");
 // Helper for ID generation (using randomUUID if available or fallback)
 const generateId = () => {
@@ -105,15 +105,16 @@ const googleLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         return res.status(400).json({ message: 'No token provided' });
     }
     try {
-        const ticket = yield google_1.googleClient.verifyIdToken({
-            idToken: token,
-            audience: process.env.GOOGLE_CLIENT_ID,
+        // Use axios to fetch user info from Google using the Access Token
+        const response = yield axios_1.default.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
         });
-        const payload = ticket.getPayload();
-        if (!payload || !payload.email) {
-            return res.status(400).json({ message: 'Invalid Google Token' });
+        const { email, name, picture } = response.data;
+        if (!email) {
+            return res.status(400).json({ message: 'Invalid Google Token Response' });
         }
-        const { email, name, picture } = payload;
         const db = yield (0, db_1.getUsersDB)();
         let user = db.data.users.find(u => u.email === email);
         let status = 200;
@@ -133,10 +134,6 @@ const googleLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             db.data.users.push(user);
             yield db.write();
             status = 201;
-        }
-        else {
-            // Update existing user (optional: update avatar/name?)
-            // For now, just logging in
         }
         res.status(status).json({
             _id: user.id,
