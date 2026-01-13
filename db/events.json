@@ -2,109 +2,73 @@
   "events": [
     {
       "id": "evt_001",
-      "slug": "intro-to-python-2025",
-      "title": "Intro to Python Workshop",
-      "type": "workshop",
+      "slug": "intro-to-citc-2025",
+      "title": "Intro to CITC",
+      "type": "orientation",
       "year": 2025,
       "status": "completed",
-      "date": "2025-01-10",
-      "startTime": "10:00",
+      "date": "2025-01-05",
+      "startTime": "11:00",
       "endTime": "13:00",
-      "location": "Block A, Room 301",
+      "location": "College Auditorium",
       "mode": "physical",
-      "shortDescription": "Kickstart your coding journey with Python basics.",
+      "shortDescription": "An introductory session to CITC, its vision, domains, and opportunities.",
       "fullDescription": {
-        "about": "This workshop covers variables, loops, and functions for absolute beginners. No prior experience needed!",
+        "about": "This session introduced students to the Computer & IT Club (CITC), its objectives, technical domains, ongoing projects, and how to get involved.",
         "agenda": [
-          "10:00 - Setup",
-          "10:30 - Basics",
-          "11:30 - Hands-on",
-          "12:30 - Q&A"
+          "11:00 - Welcome & Introduction",
+          "11:20 - CITC Vision & Structure",
+          "12:00 - Domains Overview",
+          "12:40 - Q&A"
         ],
         "rules": [
-          "Bring your own laptop"
+          "Open to all students"
         ]
       },
       "competitionDetails": null,
-      "coverImage": "/media/2025/events/python_workshop_cover.jpg",
+      "coverImage": "/media/2025/events/intro_citc_cover.jpg",
       "gallery": [
-        "/media/2025/events/python_ws_1.jpg",
-        "/media/2025/events/python_ws_2.jpg",
-        "/media/2025/events/python_ws_3.jpg"
+        "/media/2025/events/intro_citc_1.jpg",
+        "/media/2025/events/intro_citc_2.jpg"
       ],
       "outcomes": {
-        "summary": "Over 50 students attended and built their first calculator app.",
+        "summary": "Successfully onboarded new members and created awareness about CITC.",
         "highlights": [
-          "50+ Attendees",
-          "Interactive Session",
-          "Swag distribution"
+          "High student turnout",
+          "Clear domain orientation",
+          "Active interaction session"
         ]
       },
       "published": true
     },
     {
       "id": "evt_002",
-      "slug": "code-flow-2025",
-      "title": "CodeFlow 2025: Hackathon",
+      "slug": "ai-image-prompting",
+      "title": "AI Image Prompting",
       "type": "competition",
       "year": 2025,
       "status": "upcoming",
-      "date": "2025-04-15",
-      "startTime": "09:00",
-      "endTime": "18:00",
-      "location": "College Auditorium",
-      "mode": "physical",
-      "shortDescription": "24-hour hackathon solving real-world challenges.",
+      "date": "2025-02-25",
+      "startTime": "19:00",
+      "endTime": "21:00",
+      "location": "Online",
+      "mode": "online",
+      "shortDescription": "Learn how to craft effective prompts to generate high-quality AI images.",
       "fullDescription": {
-        "about": "CodeFlow is our annual flagship hackathon. Build, ship, and win prizes!",
+        "about": "This online workshop focuses on prompt engineering techniques for AI image generation, covering structure, style control, and creative workflows.",
         "agenda": [
-          "09:00 - Opening",
-          "10:00 - Hacking Starts",
-          "17:00 - Submissions"
+          "Introduction to AI Image Models",
+          "Prompt Structure & Keywords",
+          "Style, Lighting & Composition",
+          "Live Demonstration"
         ],
         "rules": [
-          "Code must be written during event",
-          "Teams of 3-4"
+          "Internet connection required",
+          "Basic AI familiarity recommended"
         ]
-      },
-      "competitionDetails": {
-        "eligibility": "All undergraduates",
-        "teamSize": "3-4 Members",
-        "prizes": [
-          "1st: Rs 15,000",
-          "2nd: Rs 10,000",
-          "3rd: Rs 5,000"
-        ]
-      },
-      "coverImage": "/media/2025/events/codeflow_cover.jpg",
-      "gallery": [],
-      "outcomes": null,
-      "published": true
-    },
-    {
-      "id": "evt_003",
-      "slug": "git-seminar",
-      "title": "Mastering Git & GitHub",
-      "type": "seminar",
-      "year": 2025,
-      "status": "upcoming",
-      "date": "2025-02-20",
-      "startTime": "14:00",
-      "endTime": "16:00",
-      "location": "Virtual (Zoom)",
-      "mode": "online",
-      "shortDescription": "Learn version control best practices.",
-      "fullDescription": {
-        "about": "Essential seminar for developers to understand collaboration workflows using Git.",
-        "agenda": [
-          "Version Control Concepts",
-          "Branching & Merging",
-          "Pull Requests"
-        ],
-        "rules": null
       },
       "competitionDetails": null,
-      "coverImage": "/media/2025/events/git_seminar_cover.jpg",
+      "coverImage": "/media/2025/events/ai_prompting_cover.jpg",
       "gallery": [],
       "outcomes": null,
       "published": true
