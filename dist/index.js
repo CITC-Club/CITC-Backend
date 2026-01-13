@@ -16,8 +16,6 @@ const teamRoutes_1 = __importDefault(require("./routes/teamRoutes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 5053;
-// Middlewar
-// Allow CORS from the frontend (default http://localhost:5173) or from FRONTEND_URL env var
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 app.use((0, cors_1.default)({
     origin: FRONTEND_URL,
