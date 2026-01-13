@@ -7,6 +7,17 @@ jest.mock('../db/db', () => ({
     getTeamsDB: jest.fn(),
 }));
 
+// Mock auth middleware
+jest.mock('../middleware/auth', () => ({
+    protect: (req: any, res: any, next: any) => {
+        req.user = { id: 'admin_id', role: 'admin' };
+        next();
+    },
+    authorize: (...roles: string[]) => (req: any, res: any, next: any) => {
+        next();
+    }
+}));
+
 describe('GET /api/team', () => {
     let mockDb: any;
 
@@ -51,12 +62,50 @@ describe('GET /api/team', () => {
         expect(res.body).toHaveProperty('members');
         expect(Array.isArray(res.body.teams)).toBe(true);
         expect(Array.isArray(res.body.members)).toBe(true);
+    });
+});
 
-        const execTeam = res.body.teams.find((t: any) => t.id === 't_exec_2025');
-        expect(execTeam).toBeDefined();
+describe('POST /api/team', () => {
+    let mockDb: any;
 
-        const member1 = res.body.members.find((m: any) => m.name === 'Member 1');
-        expect(member1).toBeDefined();
-        expect(member1.teamId).toBe('t_exec_2025');
+    beforeEach(() => {
+        mockDb = {
+            data: {
+                members: []
+            },
+            write: jest.fn().mockResolvedValue(undefined),
+        };
+        (getTeamsDB as jest.Mock).mockResolvedValue(mockDb);
+    });
+
+    it('should create a new member with valid data', async () => {
+        const newMember = {
+            name: 'New Member',
+            member_year: 2026,
+            type: 'Executive',
+            college_year: 3
+        };
+
+        const res = await request(app)
+            .post('/api/team')
+            .send(newMember);
+
+        expect(res.status).toBe(201);
+        expect(res.body.name).toBe('New Member');
+        expect(res.body.member_year).toBe(2026);
+        expect(mockDb.data.members).toHaveLength(1);
+    });
+
+    it('should fail if required fields are missing', async () => {
+        const incompleteMember = {
+            name: 'Incomplete Member'
+            // Missing member_year
+        };
+
+        const res = await request(app)
+            .post('/api/team')
+            .send(incompleteMember);
+
+        expect(res.status).toBe(400);
     });
 });

@@ -5,7 +5,7 @@ import axios from 'axios';
 
 dotenv.config();
 
-const BASE_URL = 'http://localhost:5053/api';
+const BASE_URL = 'http://localhost:5053/';
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 
 // Mock Admin User

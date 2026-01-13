@@ -16,8 +16,6 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5053;
 
-// Middlewar
-// Allow CORS from the frontend (default http://localhost:5173) or from FRONTEND_URL env var
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 app.use(
   cors({
