@@ -1,48 +1,39 @@
 name: Deploy to VPS
 
-#on:
-#  push:
-#    branches:
-#      - main
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
-      # 1. Checkout the code
-      - uses: actions/checkout@v5
+      # 1. Checkout repository (default workspace)
+      - name: Checkout code
+        uses: actions/checkout@v5
 
-      # 2. Set up Node.js / build environment (example)
+      # 2. Set up Node.js
       - name: Set up Node
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
-      - name: Install dependencies
-        run: npm ci
-
+      # 3. Install dependencies and build
       - name: Build dist folder
-        run: npm run build
+        run: |
+          npm ci
+          npm run build
 
-      # 3. Copy dist folder to VPS
-      - name: Copy dist to VPS
-        uses: appleboy/scp-action@v0.1.6
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "dist/"
-          target: "/path/on/vps/app"
+      # 4. Sync dist to the directory Docker expects
+      - name: Update Docker dist folder
+        run: |
+          rsync -av --delete dist/ /home/college/CITClub/backend/dist/
 
-      # 4. Run Docker commands via SSH
-      - name: SSH and Docker deploy
-        uses: appleboy/ssh-action@v0.1.6
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd /path/on/vps/app
-            docker compose down
-            docker compose up -d --build
+      # 5. Docker Compose deploy
+      - name: Docker deploy
+        run: |
+          cd /home/college/Server
+          docker compose down backend-citc
+          docker compose up backend-citc -d --build
